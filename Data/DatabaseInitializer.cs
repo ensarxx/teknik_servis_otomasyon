@@ -191,6 +191,19 @@ namespace TeknikServisOtomasyon.Data
                     INDEX idx_servis (ServisId),
                     INDEX idx_tip (FotografTipi)
                 );
+
+                -- E-posta Ayarları tablosu
+                CREATE TABLE IF NOT EXISTS email_ayarlari (
+                    Id INT AUTO_INCREMENT PRIMARY KEY,
+                    SmtpServer VARCHAR(100) DEFAULT 'smtp.gmail.com',
+                    SmtpPort INT DEFAULT 587,
+                    GondericiEmail VARCHAR(100),
+                    GondericiSifre VARCHAR(255),
+                    GondericiAdi VARCHAR(100) DEFAULT 'Teknik Servis',
+                    SslKullan BOOLEAN DEFAULT TRUE,
+                    EmailAktif BOOLEAN DEFAULT FALSE,
+                    GuncellemeTarihi DATETIME DEFAULT CURRENT_TIMESTAMP
+                );
             ";
 
             using var command = new MySqlCommand(createTablesQuery, connection);

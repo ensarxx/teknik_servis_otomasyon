@@ -620,7 +620,12 @@ namespace TeknikServisOtomasyon.Forms.Modules
                 {
                     try
                     {
-                        await _servisRepository.UpdateDurumAsync(_servisId, cmbDurum.Text);
+                        var yeniDurum = cmbDurum.Text;
+                        await _servisRepository.UpdateDurumAsync(_servisId, yeniDurum);
+                        
+                        // Müşteriye e-posta gönder
+                        await SendDurumEmailAsync(yeniDurum);
+                        
                         XtraMessageBox.Show("Durum güncellendi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadData();
                     }
@@ -629,6 +634,39 @@ namespace TeknikServisOtomasyon.Forms.Modules
                         XtraMessageBox.Show($"Durum güncellenirken hata oluştu:\n{ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
+            }
+        }
+
+        private async Task SendDurumEmailAsync(string yeniDurum)
+        {
+            try
+            {
+                if (_servis == null) return;
+
+                // E-posta ayarlarını yükle
+                var emailAktif = await EmailHelper.LoadAyarlarAsync();
+                if (!emailAktif) return;
+
+                // Güncel servis bilgisini al
+                var servis = await _servisRepository.GetByIdAsync(_servisId);
+                if (servis == null) return;
+
+                // Müşteri ve cihaz bilgilerini al
+                var musteriRepository = new MusteriRepository();
+                var cihazRepository = new CihazRepository();
+                
+                var musteri = await musteriRepository.GetByIdAsync(servis.MusteriId);
+                var cihaz = await cihazRepository.GetByIdAsync(servis.CihazId);
+
+                if (musteri == null || cihaz == null) return;
+                if (string.IsNullOrEmpty(musteri.Email)) return;
+
+                // E-posta gönder
+                await EmailHelper.SendDurumGuncelleEmailAsync(servis, musteri, cihaz, yeniDurum);
+            }
+            catch
+            {
+                // E-posta hatası durum güncellemeyi etkilememeli
             }
         }
     }

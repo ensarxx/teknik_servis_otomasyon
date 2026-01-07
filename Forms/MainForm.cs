@@ -122,6 +122,20 @@ namespace TeknikServisOtomasyon.Forms
 
                 pageYonetim.Groups.Add(groupRaporlar);
 
+                // Ayarlar grubu
+                var groupAyarlar = new RibbonPageGroup("Ayarlar");
+
+                var btnEmailAyarlari = new BarButtonItem();
+                btnEmailAyarlari.Caption = "E-Posta Ayarları";
+                btnEmailAyarlari.LargeGlyph = CreateColoredIcon(System.Drawing.Color.FromArgb(156, 39, 176));
+                btnEmailAyarlari.ItemClick += (s, e) => {
+                    var form = new EmailAyarlariForm();
+                    form.ShowDialog();
+                };
+                groupAyarlar.ItemLinks.Add(btnEmailAyarlari);
+
+                pageYonetim.Groups.Add(groupAyarlar);
+
                 ribbon.Pages.Add(pageYonetim);
             }
 

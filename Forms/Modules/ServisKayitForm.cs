@@ -480,6 +480,11 @@ namespace TeknikServisOtomasyon.Forms.Modules
                 {
                     servis.ServisNo = await _servisRepository.GenerateServisNoAsync();
                     var id = await _servisRepository.InsertAsync(servis);
+                    servis.Id = id;
+                    
+                    // Müşteriye e-posta gönder
+                    await SendEmailToCustomerAsync(servis);
+                    
                     XtraMessageBox.Show($"Servis kaydı oluşturuldu.\nServis No: {servis.ServisNo}", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
@@ -489,6 +494,40 @@ namespace TeknikServisOtomasyon.Forms.Modules
             catch (Exception ex)
             {
                 XtraMessageBox.Show($"Kayıt sırasında hata oluştu:\n{ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task SendEmailToCustomerAsync(ServisKaydi servis)
+        {
+            try
+            {
+                // E-posta ayarlarını yükle
+                var emailAktif = await EmailHelper.LoadAyarlarAsync();
+                if (!emailAktif) return;
+
+                // Müşteri ve cihaz bilgilerini al
+                var musteri = await _musteriRepository.GetByIdAsync(servis.MusteriId);
+                var cihaz = await _cihazRepository.GetByIdAsync(servis.CihazId);
+
+                if (musteri == null || cihaz == null) return;
+                if (string.IsNullOrEmpty(musteri.Email)) return;
+
+                // E-posta gönder
+                var (success, message) = await EmailHelper.SendServisKayitEmailAsync(servis, musteri, cihaz);
+                
+                if (success)
+                {
+                    // Başarılı - sessiz bildirim (ana mesajda gösterilecek)
+                }
+                else
+                {
+                    // Hata durumunda kullanıcıyı bilgilendir (opsiyonel)
+                    // XtraMessageBox.Show($"E-posta gönderilemedi: {message}", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch
+            {
+                // E-posta hatası servis kaydını etkilememeli
             }
         }
     }
