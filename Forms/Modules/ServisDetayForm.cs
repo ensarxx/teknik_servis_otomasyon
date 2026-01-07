@@ -282,7 +282,9 @@ namespace TeknikServisOtomasyon.Forms.Modules
             _fotografPanel.BorderStyle = BorderStyle.FixedSingle;
             panelSag.Controls.Add(_fotografPanel);
 
+            // ÖNEMLİ: Sağ panel ÖNCE eklenmeli (Dock.Fill), sonra sol panel (Dock.Left)
             this.Controls.Add(panelSag);
+            this.Controls.Add(panelSol);
 
             this.ResumeLayout(false);
         }

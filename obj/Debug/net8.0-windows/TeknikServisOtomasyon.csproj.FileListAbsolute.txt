@@ -138,3 +138,4 @@ C:\Users\Ensar\Desktop\teknik_servis_otomasyon\obj\Debug\net8.0-windows\refint\T
 C:\Users\Ensar\Desktop\teknik_servis_otomasyon\obj\Debug\net8.0-windows\TeknikServisOtomasyon.pdb
 C:\Users\Ensar\Desktop\teknik_servis_otomasyon\obj\Debug\net8.0-windows\TeknikServisOtomasyon.genruntimeconfig.cache
 C:\Users\Ensar\Desktop\teknik_servis_otomasyon\obj\Debug\net8.0-windows\ref\TeknikServisOtomasyon.dll
+C:\Users\Ensar\Desktop\teknik_servis_otomasyon\obj\Debug\net8.0-windows\TeknikServisOtomasyon.sourcelink.json
