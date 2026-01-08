@@ -43,19 +43,19 @@ namespace TeknikServisOtomasyon.Forms
 
             var btnDashboard = new BarButtonItem();
             btnDashboard.Caption = "Dashboard";
-            btnDashboard.LargeGlyph = CreateColoredIcon(AppColors.Primary);
+            btnDashboard.LargeGlyph = CreateIconWithSymbol("📊", AppColors.Primary);
             btnDashboard.ItemClick += (s, e) => OpenForm<DashboardForm>();
             groupServis.ItemLinks.Add(btnDashboard);
 
             var btnYeniServis = new BarButtonItem();
             btnYeniServis.Caption = "Yeni Servis";
-            btnYeniServis.LargeGlyph = CreateColoredIcon(AppColors.Success);
+            btnYeniServis.LargeGlyph = CreateIconWithSymbol("➕", AppColors.Success);
             btnYeniServis.ItemClick += (s, e) => OpenServisKayitForm();
             groupServis.ItemLinks.Add(btnYeniServis);
 
             var btnServisListesi = new BarButtonItem();
             btnServisListesi.Caption = "Servis Listesi";
-            btnServisListesi.LargeGlyph = CreateColoredIcon(AppColors.Info);
+            btnServisListesi.LargeGlyph = CreateIconWithSymbol("📋", AppColors.Info);
             btnServisListesi.ItemClick += (s, e) => OpenForm<ServisListeForm>();
             groupServis.ItemLinks.Add(btnServisListesi);
 
@@ -66,13 +66,13 @@ namespace TeknikServisOtomasyon.Forms
 
             var btnMusteriler = new BarButtonItem();
             btnMusteriler.Caption = "Müşteriler";
-            btnMusteriler.LargeGlyph = CreateColoredIcon(AppColors.Secondary);
+            btnMusteriler.LargeGlyph = CreateIconWithSymbol("👥", AppColors.Secondary);
             btnMusteriler.ItemClick += (s, e) => OpenForm<MusteriListeForm>();
             groupMusteri.ItemLinks.Add(btnMusteriler);
 
             var btnYeniMusteri = new BarButtonItem();
             btnYeniMusteri.Caption = "Yeni Müşteri";
-            btnYeniMusteri.LargeGlyph = CreateColoredIcon(AppColors.Success);
+            btnYeniMusteri.LargeGlyph = CreateIconWithSymbol("👤", AppColors.Success);
             btnYeniMusteri.ItemClick += (s, e) => OpenMusteriForm();
             groupMusteri.ItemLinks.Add(btnYeniMusteri);
 
@@ -83,13 +83,13 @@ namespace TeknikServisOtomasyon.Forms
 
             var btnParcalar = new BarButtonItem();
             btnParcalar.Caption = "Parça Listesi";
-            btnParcalar.LargeGlyph = CreateColoredIcon(AppColors.Warning);
+            btnParcalar.LargeGlyph = CreateIconWithSymbol("🔧", AppColors.Warning);
             btnParcalar.ItemClick += (s, e) => OpenForm<ParcaListeForm>();
             groupStok.ItemLinks.Add(btnParcalar);
 
             var btnYeniParca = new BarButtonItem();
             btnYeniParca.Caption = "Yeni Parça";
-            btnYeniParca.LargeGlyph = CreateColoredIcon(AppColors.Success);
+            btnYeniParca.LargeGlyph = CreateIconWithSymbol("⚙️", AppColors.Success);
             btnYeniParca.ItemClick += (s, e) => OpenParcaForm();
             groupStok.ItemLinks.Add(btnYeniParca);
 
@@ -106,7 +106,7 @@ namespace TeknikServisOtomasyon.Forms
 
                 var btnKullanicilar = new BarButtonItem();
                 btnKullanicilar.Caption = "Kullanıcılar";
-                btnKullanicilar.LargeGlyph = CreateColoredIcon(AppColors.PrimaryDark);
+                btnKullanicilar.LargeGlyph = CreateIconWithSymbol("👤", AppColors.PrimaryDark);
                 btnKullanicilar.ItemClick += (s, e) => OpenForm<KullaniciListeForm>();
                 groupKullanici.ItemLinks.Add(btnKullanicilar);
 
@@ -116,7 +116,7 @@ namespace TeknikServisOtomasyon.Forms
 
                 var btnRaporlar = new BarButtonItem();
                 btnRaporlar.Caption = "Raporlar";
-                btnRaporlar.LargeGlyph = CreateColoredIcon(AppColors.Info);
+                btnRaporlar.LargeGlyph = CreateIconWithSymbol("📈", AppColors.Info);
                 btnRaporlar.ItemClick += (s, e) => OpenForm<RaporlarForm>();
                 groupRaporlar.ItemLinks.Add(btnRaporlar);
 
@@ -127,7 +127,7 @@ namespace TeknikServisOtomasyon.Forms
 
                 var btnEmailAyarlari = new BarButtonItem();
                 btnEmailAyarlari.Caption = "E-Posta Ayarları";
-                btnEmailAyarlari.LargeGlyph = CreateColoredIcon(System.Drawing.Color.FromArgb(156, 39, 176));
+                btnEmailAyarlari.LargeGlyph = CreateIconWithSymbol("📧", System.Drawing.Color.FromArgb(156, 39, 176));
                 btnEmailAyarlari.ItemClick += (s, e) => {
                     var form = new EmailAyarlariForm();
                     form.ShowDialog();
@@ -145,12 +145,12 @@ namespace TeknikServisOtomasyon.Forms
 
             var btnProfil = new BarButtonItem();
             btnProfil.Caption = $"Hoş geldiniz, {SessionManager.CurrentUser?.AdSoyad}";
-            btnProfil.LargeGlyph = CreateColoredIcon(AppColors.Info);
+            btnProfil.LargeGlyph = CreateIconWithSymbol("😊", AppColors.Info);
             groupCikis.ItemLinks.Add(btnProfil);
 
             var btnCikis = new BarButtonItem();
             btnCikis.Caption = "Çıkış Yap";
-            btnCikis.LargeGlyph = CreateColoredIcon(AppColors.Danger);
+            btnCikis.LargeGlyph = CreateIconWithSymbol("🚪", AppColors.Danger);
             btnCikis.ItemClick += BtnCikis_Click;
             groupCikis.ItemLinks.Add(btnCikis);
 
@@ -197,6 +197,33 @@ namespace TeknikServisOtomasyon.Forms
                 using (var brush = new SolidBrush(color))
                 {
                     g.FillEllipse(brush, 2, 2, 28, 28);
+                }
+            }
+            return bmp;
+        }
+
+        private Bitmap CreateIconWithSymbol(string symbol, Color bgColor)
+        {
+            var bmp = new Bitmap(32, 32);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+                
+                // Arka plan daire
+                using (var brush = new SolidBrush(bgColor))
+                {
+                    g.FillEllipse(brush, 1, 1, 30, 30);
+                }
+                
+                // Sembol
+                using (var font = new Font("Segoe UI Emoji", 14f, FontStyle.Regular))
+                using (var brush = new SolidBrush(Color.White))
+                {
+                    var size = g.MeasureString(symbol, font);
+                    var x = (32 - size.Width) / 2;
+                    var y = (32 - size.Height) / 2;
+                    g.DrawString(symbol, font, brush, x, y);
                 }
             }
             return bmp;

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TeknikServisOtomasyon")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5571f562acffa957403a355b2748c0de457cee1a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07a6a52174a501997f438dfef57c85bae3feda6c")]
 [assembly: System.Reflection.AssemblyProductAttribute("TeknikServisOtomasyon")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TeknikServisOtomasyon")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

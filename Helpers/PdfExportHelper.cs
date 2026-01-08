@@ -235,6 +235,12 @@ namespace TeknikServisOtomasyon.Helpers
             if (fotograflar.Count > 0)
             {
                 y += 20;
+
+                // Sayfa geçişlerini manuel kontrol etmek yerine BrickGraphics'in akışını kullanmaya çalışıyoruz
+                // Ancak CreateDetailArea bir tek sayfa canvası gibi davranır.
+                // DevExpress PrintingSystem'de sayfa sonu eklemek için BrickGraphics yerine Link kullanmak daha doğrudur.
+                // Basit çözüm: Y koordinatı çok arttıysa uyaralım veya limiti görmezden gelelim (PrintingSystem kendisi bölebilir)
+                
                 graph.DrawString($"FOTOĞRAFLAR ({fotograflar.Count} adet)", Color.DarkBlue,
                     new RectangleF(margin, y, 300, 20), BorderSide.None).Font = titleFont;
                 y += 25;
@@ -249,14 +255,31 @@ namespace TeknikServisOtomasyon.Helpers
                     {
                         try
                         {
-                            using (var img = Image.FromFile(foto.DosyaYolu))
+                            // "Parameter is not valid" hatasını önlemek için güvenli resim yükleme
+                            // Resmi yüklerken MemoryStream kullanarak dosya kilidini önlüyoruz ve formatı ensure ediyoruz
+                            Image? safeImage = null;
+                            using (var fs = new FileStream(foto.DosyaYolu, FileMode.Open, FileAccess.Read))
                             {
-                                var imgBrick = graph.DrawImage(img, new RectangleF(xPos, y, imgWidth, imgHeight));
+                                using (var original = Image.FromStream(fs))
+                                {
+                                    // Resmi klonla veya yeni bir bitmap oluştur
+                                    safeImage = new Bitmap(original);
+                                }
                             }
+
+                            if (safeImage != null)
+                            {
+                                var imgBrick = graph.DrawImage(safeImage, new RectangleF(xPos, y, imgWidth, imgHeight));
+                            }
+                            
                             graph.DrawString(foto.FotografTipi, Color.Gray,
                                 new RectangleF(xPos, y + imgHeight + 2, imgWidth, 15), BorderSide.None).Font = smallFont;
                         }
-                        catch { }
+                        catch 
+                        { 
+                            graph.DrawString("[Resim Yüklenemedi]", Color.Red,
+                                new RectangleF(xPos, y, imgWidth, 20), BorderSide.None).Font = smallFont;
+                        }
                     }
 
                     xPos += imgWidth + 15;

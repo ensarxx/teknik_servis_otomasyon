@@ -148,22 +148,22 @@ namespace TeknikServisOtomasyon.Forms.Modules
             grpIslemler.Controls.Add(btnDuzenle);
 
             var btnStokGiris = new SimpleButton();
-            btnStokGiris.Text = "📥 Stok Giriş";
+            btnStokGiris.Text = "📥 Stok Girişi";
             btnStokGiris.Location = new Point(250, 24);
             btnStokGiris.Size = new Size(110, 28);
             btnStokGiris.Appearance.BackColor = AppColors.Info;
             btnStokGiris.Appearance.ForeColor = Color.White;
-            btnStokGiris.Click += (s, e) => StokHareketi(true);
+            btnStokGiris.Click += (s, e) => UpdateStock(true);
             grpIslemler.Controls.Add(btnStokGiris);
 
-            var btnStokCikis = new SimpleButton();
-            btnStokCikis.Text = "📤 Stok Çıkış";
-            btnStokCikis.Location = new Point(370, 24);
-            btnStokCikis.Size = new Size(110, 28);
-            btnStokCikis.Appearance.BackColor = Color.FromArgb(156, 39, 176);
-            btnStokCikis.Appearance.ForeColor = Color.White;
-            btnStokCikis.Click += (s, e) => StokHareketi(false);
-            grpIslemler.Controls.Add(btnStokCikis);
+            var btnStokDus = new SimpleButton();
+            btnStokDus.Text = "📤 Stok Düş";
+            btnStokDus.Location = new Point(370, 24);
+            btnStokDus.Size = new Size(110, 28);
+            btnStokDus.Appearance.BackColor = AppColors.Danger;
+            btnStokDus.Appearance.ForeColor = Color.White;
+            btnStokDus.Click += (s, e) => UpdateStock(false);
+            grpIslemler.Controls.Add(btnStokDus);
 
             var btnSil = new SimpleButton();
             btnSil.Text = "🗑 Sil";
@@ -208,11 +208,11 @@ namespace TeknikServisOtomasyon.Forms.Modules
             popupMenu.AddItem(menuDuzenle);
 
             var menuStokGiris = new BarButtonItem(barManager, "📥 Stok Girişi");
-            menuStokGiris.ItemClick += (s, e) => StokHareketi(true);
+            menuStokGiris.ItemClick += (s, e) => UpdateStock(true);
             popupMenu.AddItem(menuStokGiris);
 
             var menuStokCikis = new BarButtonItem(barManager, "📤 Stok Çıkışı");
-            menuStokCikis.ItemClick += (s, e) => StokHareketi(false);
+            menuStokCikis.ItemClick += (s, e) => UpdateStock(false);
             popupMenu.AddItem(menuStokCikis);
 
             var menuSil = new BarButtonItem(barManager, "🗑 Sil");
@@ -421,26 +421,56 @@ namespace TeknikServisOtomasyon.Forms.Modules
             }
         }
 
-        private async void StokHareketi(bool giris)
+        private async void UpdateStock(bool isIncrease)
         {
-            var parca = _gridView.GetFocusedRow() as Parca;
-            if (parca == null) return;
+            var selectedRow = _gridView.GetFocusedRow() as Parca;
+            if (selectedRow == null)
+            {
+                XtraMessageBox.Show("Lütfen stok işlemi yapmak için bir parça seçin.", "Uyarı",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
-            var miktar = XtraInputBox.Show($"{(giris ? "Giriş" : "Çıkış")} miktarını girin:", 
-                $"Stok {(giris ? "Girişi" : "Çıkışı")} - {parca.ParcaAdi}", "1");
+            string islemAdi = isIncrease ? "Stok Girişi" : "Stok Düşme";
+            string prompt = isIncrease 
+                ? $"'{selectedRow.ParcaAdi}' için eklenecek miktarı girin:"
+                : $"'{selectedRow.ParcaAdi}' için düşülecek miktarı girin:";
 
-            if (!string.IsNullOrEmpty(miktar) && int.TryParse(miktar, out int miktarInt) && miktarInt > 0)
+            string? result = XtraInputBox.Show(prompt, islemAdi, "1");
+            
+            if (!string.IsNullOrEmpty(result) && int.TryParse(result, out int miktar) && miktar > 0)
             {
                 try
                 {
-                    var gercekMiktar = giris ? miktarInt : -miktarInt;
-                    await _parcaRepository.UpdateStokAsync(parca.Id, gercekMiktar);
-                    XtraMessageBox.Show($"Stok güncellendi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadData();
+                    if (!isIncrease && selectedRow.StokMiktari < miktar)
+                    {
+                         XtraMessageBox.Show($"Yetersiz stok! Mevcut stok: {selectedRow.StokMiktari}", "Hata",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                         return;
+                    }
+
+                    int updateAmount = isIncrease ? miktar : -miktar;
+                    var success = await _parcaRepository.UpdateStokAsync(selectedRow.Id, updateAmount);
+
+                    if (success)
+                    {
+                        var yeniMiktar = selectedRow.StokMiktari + updateAmount;
+                        XtraMessageBox.Show(
+                            $"{islemAdi} başarılı!\n" +
+                            $"Eski Stok: {selectedRow.StokMiktari}\n" +
+                            $"Yeni Stok: {yeniMiktar}",
+                            "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        
+                        LoadData(); // Listeyi yenile
+                    }
+                    else
+                    {
+                        XtraMessageBox.Show("Stok güncellenemedi.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    XtraMessageBox.Show($"Stok güncellenirken hata oluştu:\n{ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    XtraMessageBox.Show($"Hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
